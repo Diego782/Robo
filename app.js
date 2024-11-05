@@ -66,6 +66,6 @@ var server = net.createServer((client) => {
 });
 
 server.listen(serverPort, () => {
-    console.log('started server on port:', serverPort);
+    console.log('started server on port:', 4000);
 });
 
