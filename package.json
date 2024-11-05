@@ -1,0 +1,26 @@
+{
+  "name": "gt06-server",
+  "version": "1.0.1",
+  "author": "Andy Hempel",
+  "license": "ISC",
+  "description": "Server/Gateway to receive and response to gt06 GPS Tracker messages and forward the parsed content via MQTT",
+  "scripts": {
+    "start": "node app.js",
+    "test": "jest",
+    "debug": "node --debug-brk --inspect ./node_modules/jest/bin/jest -i"
+  },
+  "keywords": [
+    "GPS",
+    "GT06",
+    "Tracker",
+    "MQTT",
+    "Gateway"
+  ],
+  "devDependencies": {
+    "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "mqtt": "^3.0.0"
+  }
+}
