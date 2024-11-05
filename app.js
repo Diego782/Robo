@@ -1,71 +1,33 @@
-require('dotenv').config();
-const Gt06 = require('./gt06');
-const Mqtt = require('mqtt');
 const net = require('net');
-const fs = require('fs');
 
-const serverPort = process.env.GT06_SERVER_PORT || 64459;
-const rootTopic = process.env.MQTT_ROOT_TOPIC || 'gt06';
-const brokerUrl = process.env.MQTT_BROKER_URL || 'localhost';
-const brokerPort = process.env.MQTT_BROKER_PORT || 1883;
-const mqttProtocol = process.env.MQTT_BROKER_PROTO || 'mqtt';
-const brokerUser = process.env.MQTT_BROKER_USER || 'user';
-const brokerPasswd = process.env.MQTT_BROKER_PASSWD || 'passwd';
-const trustedCaPath = process.env.MQTT_BROKER_CA || '';
-const TRUSTED_CA = fs.readFileSync(trustedCaPath);
+// Crea el servidor TCP
+const server = net.createServer((socket) => {
+    console.log('Nueva conexión de GPS');
 
-var mqttClient = Mqtt.connect(
-    {
-        host: brokerUrl,
-        port: brokerPort,
-        protocol: mqttProtocol,
-        ca: TRUSTED_CA,
-        username: brokerUser,
-        password: brokerPasswd
-    }
-);
+    socket.on('data', (data) => {
+        console.log('Datos recibidos:', data);
 
-mqttClient.on('error', (err) => {
-    console.error('MQTT Error:', err);
-});
-
-var server = net.createServer((client) => {
-    var gt06 = new Gt06();
-    console.log('client connected');
-
-    server.on('error', (err) => {
-        console.error('server error', err);
+        // Verifica si el mensaje es de tipo 01 (registro de terminal)
+        if (data.length >= 2 && data[0] === 0x78 && data[1] === 0x78 && data[3] === 0x01) {
+            console.log('Mensaje de registro recibido');
+            
+            // Prepara la respuesta de confirmación
+            const response = Buffer.from([0x78, 0x78, 0x05, 0x01, 0x00, 0x01, 0xD9, 0xDC, 0x0D, 0x0A]);
+            
+            // Envía la confirmación al GPS
+            socket.write(response);
+            console.log('Respuesta de confirmación enviada');
+        } else {
+            console.log('Mensaje desconocido recibido');
+        }
     });
 
-    client.on('error', (err) => {
-        console.error('client error', err);
-    });
-
-    client.on('close', () => {
-        console.log('client disconnected');
-    });
-
-    client.on('data', (data) => {
-        try {
-            gt06.parse(data);
-        }
-        catch (e) {
-            console.log('err', e);
-            return;
-        }
-        console.log(gt06);
-        if (gt06.expectsResponse) {
-            client.write(gt06.responseMsg);
-        }
-        gt06.msgBuffer.forEach(msg => {
-            mqttClient.publish(rootTopic + '/' + gt06.imei +
-                '/pos', JSON.stringify(msg));
-        });
-        gt06.clearMsgBuffer();
+    socket.on('close', () => {
+        console.log('Conexión cerrada');
     });
 });
 
-server.listen(serverPort, () => {
-    console.log('started server on port:', 4000);
+// Inicia el servidor en el puerto 3000
+server.listen(3000, () => {
+    console.log('Servidor TCP escuchando en el puerto 3000');
 });
-
