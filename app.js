@@ -28,6 +28,6 @@ const server = net.createServer((socket) => {
 });
 
 // Inicia el servidor en el puerto 3000
-server.listen(3000, () => {
-    console.log('Servidor TCP escuchando en el puerto 3000');
+server.listen(4000, () => {
+    console.log('Servidor TCP escuchando en el puerto 4000');
 });
