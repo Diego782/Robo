@@ -1,33 +1,47 @@
-const net = require('net');
+const buffer = Buffer.from('78781f12180b02173603c4012bea4c08071160001c00000000000000000006c1940d0a', 'hex');
 
-// Crea el servidor TCP
-const server = net.createServer((socket) => {
-    console.log('Nueva conexión de GPS');
+function parseLocation(data) {
+    let datasheet = {
+        startBit: data.readUInt16BE(0),
+        protocolLength: data.readUInt8(2),
+        protocolNumber: data.readUInt8(3),
+        fixTime: data.slice(4, 10),
+        quantity: data.readUInt8(10),
+        lat: data.readUInt32BE(11),
+        lon: data.readUInt32BE(15),
+        speed: data.readUInt8(19),
+        course: data.readUInt16BE(20),
+        mcc: data.readUInt16BE(22),
+        mnc: data.readUInt8(24),
+        lac: data.readUInt16BE(25),
+        cellId: parseInt(data.slice(27, 30).toString('hex'), 16),
+        serialNr: data.readUInt16BE(30),
+        errorCheck: data.readUInt16BE(32)
+    };
+    return datasheet;
+}
 
-    socket.on('data', (data) => {
-        console.log('Datos recibidos:', data);
+function decodeGt06Lat(lat, course) {
+    var latitude = lat / 30000.0 / 60.0;
+    if (!(course & 0x0400)) {
+        latitude = -latitude;
+    }
+    return Math.round(latitude * 1000000) / 1000000;
+}
 
-        // Verifica si el mensaje es de tipo 01 (registro de terminal)
-        if (data.length >= 2 && data[0] === 0x78 && data[1] === 0x78 && data[3] === 0x01) {
-            console.log('Mensaje de registro recibido');
-            
-            // Prepara la respuesta de confirmación
-            const response = Buffer.from([0x78, 0x78, 0x05, 0x01, 0x00, 0x01, 0xD9, 0xDC, 0x0D, 0x0A]);
-            
-            // Envía la confirmación al GPS
-            socket.write(response);
-            console.log('Respuesta de confirmación enviada');
-        } else {
-            console.log('Mensaje desconocido recibido');
-        }
-    });
+function decodeGt06Lon(lon, course) {
+    var longitude = lon / 30000.0 / 60.0;
+    if (!(course & 0x0800)) {
+        longitude = -longitude;
+    }
+    return Math.round(longitude * 1000000) / 1000000;
+}
 
-    socket.on('close', () => {
-        console.log('Conexión cerrada');
-    });
-});
+const parsedData = parseLocation(buffer);
+console.log(parsedData);
 
-// Inicia el servidor en el puerto 3000
-server.listen(4000, () => {
-    console.log('Servidor TCP escuchando en el puerto 4000');
-});
+const decodedLat = decodeGt06Lat(parsedData.lat, parsedData.course);
+const decodedLon = decodeGt06Lon(parsedData.lon, parsedData.course);
+
+console.log('Latitud decodificada:', decodedLat);
+console.log('Longitud decodificada:', decodedLon);
