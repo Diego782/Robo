@@ -2,6 +2,10 @@ const net = require('net');
 
 // Función para parsear la ubicación
 function parseLocation(data) {
+    if (data.length < 33) {
+        throw new RangeError('El buffer es demasiado corto para contener todos los datos necesarios.');
+    }
+
     let datasheet = {
         startBit: data.readUInt16BE(0),
         protocolLength: data.readUInt8(2),
@@ -49,8 +53,20 @@ const server = net.createServer((socket) => {
 
     socket.on('data', (data) => {
         console.log('Datos recibidos:', data.toString('hex'));
-        const location = parseLocation(data);
-        console.log('Datos parseados:', location);
+        try {
+            const location = parseLocation(data);
+            console.log('Datos parseados:', location);
+
+            // Verificar el tipo de mensaje y enviar la respuesta adecuada
+            if (data[3] === 0x01) { // Mensaje de tipo 0x01 (login)
+                const response = Buffer.from([0x78, 0x78, 0x05, 0x01, 0x00, 0x01, 0xD9, 0xDC, 0x0D, 0x0A]);
+                // Envía la confirmación al GPS
+                socket.write(response);
+                console.log('Respuesta enviada al GPS:', response.toString('hex'));
+            }
+        } catch (err) {
+            console.error('Error al parsear los datos:', err.message);
+        }
     });
 
     socket.on('end', () => {
