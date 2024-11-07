@@ -19,29 +19,13 @@ const server = net.createServer((socket) => {
             // Envía la confirmación al GPS
             socket.write(response);
             console.log('Respuesta de confirmación enviada');
+            return;
         } else {
             console.log('Mensaje desconocido recibido');
         }
 
-        // Procesar los datos recibidos
-        const parsedData = parseLocation(receivedData);
-        console.log(parsedData);
+         
 
-        const decodedLat = decodeGt06Lat(parsedData.lat, parsedData.course);
-        const decodedLon = decodeGt06Lon(parsedData.lon, parsedData.course);
-
-        console.log('Latitud decodificada:', decodedLat);
-        console.log('Longitud decodificada:', decodedLon);
-    });
-
-    socket.on('end', () => {
-        console.log('Cliente desconectado');
-    });
-
-    socket.on('error', (err) => {
-        console.error('Error:', err);
-    });
-});
 
 function parseLocation(data) {
     let datasheet = {
@@ -80,6 +64,29 @@ function decodeGt06Lon(lon, course) {
     return Math.round(longitude * 1000000) / 1000000;
 }
 
+try {
+    // Procesar los datos recibidos
+    const parsedData = parseLocation(data);
+    console.log(parsedData);
+
+    const decodedLat = decodeGt06Lat(parsedData.lat, parsedData.course);
+    const decodedLon = decodeGt06Lon(parsedData.lon, parsedData.course);
+
+    console.log('Latitud decodificada:', decodedLat);
+    console.log('Longitud decodificada:', decodedLon);
+} catch (err) {
+    console.error('Error al parsear los datos:', err.message);
+}
+});
+
+socket.on('end', () => {
+console.log('Cliente desconectado');
+});
+
+socket.on('error', (err) => {
+console.error('Error:', err);
+});
+});
 // Inicia el servidor en el puerto 4000
 server.listen(4000, () => {
     console.log('Servidor TCP escuchando en el puerto 4000');
