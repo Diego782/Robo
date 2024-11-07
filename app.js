@@ -1,7 +1,7 @@
 const net = require('net');
 const Gt06 = require('./gt06'); // Asegúrate de que el archivo Gt06.js esté en la misma carpeta o proporciona la ruta correcta
 
-const PORT = 3000; // Puerto de escucha
+const PORT = 4000; // Puerto de escucha
 
 // Crear un servidor TCP
 const server = net.createServer((socket) => {
