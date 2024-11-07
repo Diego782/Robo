@@ -1,5 +1,6 @@
-const buffer = Buffer.from('78781f12180b02173603c4012bea4c08071160001c00000000000000000006c1940d0a', 'hex');
+const net = require('net');
 
+// Función para parsear la ubicación
 function parseLocation(data) {
     let datasheet = {
         startBit: data.readUInt16BE(0),
@@ -18,6 +19,11 @@ function parseLocation(data) {
         serialNr: data.readUInt16BE(30),
         errorCheck: data.readUInt16BE(32)
     };
+
+    // Decodificar latitud y longitud
+    datasheet.decodedLat = decodeGt06Lat(datasheet.lat, datasheet.course);
+    datasheet.decodedLon = decodeGt06Lon(datasheet.lon, datasheet.course);
+
     return datasheet;
 }
 
@@ -37,11 +43,26 @@ function decodeGt06Lon(lon, course) {
     return Math.round(longitude * 1000000) / 1000000;
 }
 
-const parsedData = parseLocation(buffer);
-console.log(parsedData);
+// Crear un servidor TCP
+const server = net.createServer((socket) => {
+    console.log('Cliente conectado');
 
-const decodedLat = decodeGt06Lat(parsedData.lat, parsedData.course);
-const decodedLon = decodeGt06Lon(parsedData.lon, parsedData.course);
+    socket.on('data', (data) => {
+        console.log('Datos recibidos:', data.toString('hex'));
+        const location = parseLocation(data);
+        console.log('Datos parseados:', location);
+    });
 
-console.log('Latitud decodificada:', decodedLat);
-console.log('Longitud decodificada:', decodedLon);
+    socket.on('end', () => {
+        console.log('Cliente desconectado');
+    });
+
+    socket.on('error', (err) => {
+        console.error('Error:', err);
+    });
+});
+
+// El servidor escucha en el puerto 4000
+server.listen(4000, () => {
+    console.log('Servidor escuchando en el puerto 4000');
+});
