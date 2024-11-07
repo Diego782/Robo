@@ -58,7 +58,7 @@ const server = net.createServer((socket) => {
             console.log('Datos parseados:', location);
 
             // Verificar el tipo de mensaje y enviar la respuesta adecuada
-            if (data[3] === 0x01) { // Mensaje de tipo 0x01 (login)
+            if (data.length >= 2 && data[0] === 0x78 && data[1] === 0x78 && data[3] === 0x01) { // Mensaje de tipo 0x01 (login)
                 const response = Buffer.from([0x78, 0x78, 0x05, 0x01, 0x00, 0x01, 0xD9, 0xDC, 0x0D, 0x0A]);
                 // Envía la confirmación al GPS
                 socket.write(response);
