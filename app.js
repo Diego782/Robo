@@ -2,9 +2,7 @@ const net = require('net');
 
 // Función para parsear la ubicación
 function parseLocation(data) {
-    if (data.length < 33) {
-        throw new RangeError('El buffer es demasiado corto para contener todos los datos necesarios.');
-    }
+   
 
     let datasheet = {
         startBit: data.readUInt16BE(0),
