@@ -52,16 +52,17 @@ const server = net.createServer((socket) => {
     socket.on('data', (data) => {
         console.log('Datos recibidos:', data.toString('hex'));
         try {
-            const location = parseLocation(data);
-            console.log('Datos parseados:', location);
-
-            // Verificar el tipo de mensaje y enviar la respuesta adecuada
             if (data.length >= 2 && data[0] === 0x78 && data[1] === 0x78 && data[3] === 0x01) { // Mensaje de tipo 0x01 (login)
                 const response = Buffer.from([0x78, 0x78, 0x05, 0x01, 0x00, 0x01, 0xD9, 0xDC, 0x0D, 0x0A]);
                 // Envía la confirmación al GPS
                 socket.write(response);
                 console.log('Respuesta enviada al GPS:', response.toString('hex'));
             }
+            const location = parseLocation(data);
+            console.log('Datos parseados:', location);
+
+            // Verificar el tipo de mensaje y enviar la respuesta adecuada
+            
         } catch (err) {
             console.error('Error al parsear los datos:', err.message);
         }
