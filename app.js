@@ -1,42 +1,33 @@
 const net = require('net');
-const Gt06 = require('./gt06'); // Asegúrate de que el archivo Gt06.js esté en la misma carpeta o proporciona la ruta correcta
 
-const PORT = 4000; // Puerto de escucha
-
-// Crear un servidor TCP
+// Crea el servidor TCP
 const server = net.createServer((socket) => {
-    console.log('Nuevo dispositivo conectado');
+    console.log('Nueva conexión de GPS');
 
-    const gps = new Gt06();
-
-    // Manejar los datos que llegan desde el dispositivo GPS
     socket.on('data', (data) => {
-        console.log('Datos recibidos:', data.toString('hex'));
-        
-        try {
-            gps.parse(data); // Procesa los datos recibidos
+        console.log('Datos recibidos:', data);
+
+        // Verifica si el mensaje es de tipo 01 (registro de terminal)
+        if (data.length >= 2 && data[0] === 0x78 && data[1] === 0x78 && data[3] === 0x01) {
+            console.log('Mensaje de registro recibido');
             
-            if (gps.expectsResponse) {
-                socket.write(gps.responseMsg); // Envía la respuesta generada al GPS
-                console.log('Respuesta enviada:', gps.responseMsg.toString('hex'));
-            }
-        } catch (error) {
-            console.error('Error al procesar los datos:', error);
+            // Prepara la respuesta de confirmación
+            const response = Buffer.from([0x78, 0x78, 0x05, 0x01, 0x00, 0x01, 0xD9, 0xDC, 0x0D, 0x0A]);
+            
+            // Envía la confirmación al GPS
+            socket.write(response);
+            console.log('Respuesta de confirmación enviada');
+        } else {
+            console.log('Mensaje desconocido recibido');
         }
     });
 
-    // Manejar la desconexión del GPS
-    socket.on('end', () => {
-        console.log('Dispositivo desconectado');
-    });
-
-    // Manejar errores de la conexión
-    socket.on('error', (err) => {
-        console.error('Error de conexión:', err);
+    socket.on('close', () => {
+        console.log('Conexión cerrada');
     });
 });
 
-// Iniciar el servidor y escuchar en el puerto especificado
-server.listen(PORT, () => {
-    console.log(`Servidor TCP escuchando en el puerto ${PORT}`);
+// Inicia el servidor en el puerto 3000
+server.listen(4000, () => {
+    console.log('Servidor TCP escuchando en el puerto 4000');
 });
