@@ -61,18 +61,18 @@ var server = net.createServer((client) => {
 
         const deviceData = {
             imei: gt06.imei,
-            Lat: msg.Lat,
-            Lon: msg.Lon,
-            speed: msg.speed,
-            course: msg.course,
-            time: msg.time,
-            eventNumber: msg.eventNumber,
-            eventString: msg.eventString,
-            mcc: msg.mcc,
-            mnc: msg.mnc,
-            lac: msg.lac,
-            cellId: msg.cellId,
-            serialNr: msg.serialNr
+            Lat: gt06.Lat,
+            Lon: gt06.Lon,
+            speed: gt06.speed,
+            course: gt06.course,
+            time: gt06.time,
+            eventNumber: gt06.eventNumber,
+            eventString: gt06.eventString,
+            mcc: gt06.mcc,
+            mnc: gt06.mnc,
+            lac: gt06.lac,
+            cellId: gt06.cellId,
+            serialNr: gt06.serialNr
         };
         console.log('Datos del dispositivo:', deviceData);
 
