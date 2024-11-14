@@ -58,10 +58,6 @@ var server = net.createServer((client) => {
             mqttClient.publish(rootTopic + '/' + gt06.imei +
                 '/pos', JSON.stringify(msg));
         });
-
-        
-       
-
         gt06.clearMsgBuffer();
     });
 });
