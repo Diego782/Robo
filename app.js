@@ -58,6 +58,24 @@ var server = net.createServer((client) => {
             mqttClient.publish(rootTopic + '/' + gt06.imei +
                 '/pos', JSON.stringify(msg));
         });
+
+        const deviceData = {
+            imei: gt06.imei,
+            Lat: msg.Lat,
+            Lon: msg.Lon,
+            speed: msg.speed,
+            course: msg.course,
+            time: msg.time,
+            eventNumber: msg.eventNumber,
+            eventString: msg.eventString,
+            mcc: msg.mcc,
+            mnc: msg.mnc,
+            lac: msg.lac,
+            cellId: msg.cellId,
+            serialNr: msg.serialNr
+        };
+        console.log('Datos del dispositivo:', deviceData);
+
         gt06.clearMsgBuffer();
     });
 });
