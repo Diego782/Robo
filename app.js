@@ -60,7 +60,7 @@ var server = net.createServer((client) => {
         });
 
         
-        console.log('Datos del dispositivo:', deviceData);
+       
 
         gt06.clearMsgBuffer();
     });
