@@ -53,6 +53,10 @@ var server = net.createServer((client) => {
         console.log(gt06);
         console.log('Latitude:', gt06.lat);
         console.log('Longitude:', gt06.lon);
+        console.log('Hora:', gt06.fixTime);
+        console.log('Rumbo:', gt06.course);
+        console.log('velocidad:', gt06.speed);
+
         if (gt06.expectsResponse) {
             client.write(gt06.responseMsg);
         }
