@@ -53,18 +53,9 @@ var server = net.createServer((client) => {
         console.log(gt06);
         const deviceData = {
             imei: gt06.imei,
-            Lat: msg.Lat,
-            Lon: msg.Lon,
-            speed: msg.speed,
-            course: msg.course,
-            time: msg.time,
-            eventNumber: msg.eventNumber,
-            eventString: msg.eventString,
-            mcc: msg.mcc,
-            mnc: msg.mnc,
-            lac: msg.lac,
-            cellId: msg.cellId,
-            serialNr: msg.serialNr
+            Lat: gt06.Lat,
+            Lon: gt06.Lon,
+           
         };
         console.log('Datos del dispositivo:', deviceData);
         if (gt06.expectsResponse) {
