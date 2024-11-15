@@ -51,13 +51,8 @@ var server = net.createServer((client) => {
             return;
         }
         console.log(gt06);
-        const deviceData = {
-            imei: gt06.imei,
-            Lat: gt06.Lat,
-            Lon: gt06.Lon,
-           
-        };
-        console.log('Datos del dispositivo:', deviceData);
+        console.log('Latitude:', gt06.lat);
+        console.log('Longitude:', gt06.lon);
         if (gt06.expectsResponse) {
             client.write(gt06.responseMsg);
         }
